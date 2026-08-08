@@ -17,13 +17,31 @@ import MemberProfileModal from './components/hrwall/MemberProfileModal';
 import LogoMark from './components/hrwall/LogoMark';
 import Reveal from './components/hrwall/Reveal';
 import StatCounter from './components/hrwall/StatCounter';
+import AuthModal from './components/hrwall/AuthModal';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { hrWallStats } from './data/hrWallData';
 
 export default function App() {
+  return (
+    <AuthProvider>
+      <AppShell />
+    </AuthProvider>
+  );
+}
+
+function AppShell() {
+  const { currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('directory');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [isDark, setIsDark] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('login');
+
+  function openAuth(mode) {
+    setAuthMode(mode);
+    setAuthOpen(true);
+  }
 
   return (
     <div className={isDark ? 'dark' : ''}>
@@ -35,6 +53,9 @@ export default function App() {
           setActiveTab={setActiveTab}
           isDark={isDark}
           onToggleDark={() => setIsDark(!isDark)}
+          currentUser={currentUser}
+          onOpenAuth={openAuth}
+          onLogout={logout}
         />
 
         {/* Hero Section */}
@@ -134,7 +155,7 @@ export default function App() {
                 Built for HRBPs, recruiters and payroll teams who are tired of Googling "PF due date this month" alone — this is where India's HR crowd compares notes, salary bands and the occasional bad manager story.
               </p>
               <button
-                onClick={() => setActiveTab('pricing')}
+                onClick={() => openAuth('signup')}
                 className="mt-5 inline-flex items-center gap-1.5 bg-brass-500 hover:bg-brass-400 text-ink-900 text-xs font-semibold px-4 py-2.5 rounded-full transition-all"
               >
                 Join Free Community
@@ -185,6 +206,13 @@ export default function App() {
         <MemberProfileModal
           member={selectedMember}
           onClose={() => setSelectedMember(null)}
+        />
+
+        {/* Sign In / Sign Up Modal */}
+        <AuthModal
+          open={authOpen}
+          initialMode={authMode}
+          onClose={() => setAuthOpen(false)}
         />
 
       </div>

@@ -49,3 +49,18 @@ npx gh-pages -d dist
 
 ## Note on `functions/`
 The `functions/` folder is a separate Firebase Cloud Function (`aiAssistant`) used by the AI assistant feature — it is **not** part of the static site build and is deployed separately via `firebase deploy --only functions`. See `.env.example` for wiring the deployed function URL into the frontend.
+
+## Setting up Sign In / Sign Up (Google + Email/Password)
+
+The "Sign In" / "Join Free Community" buttons in the navbar open a modal backed by Firebase Authentication. To make it work end-to-end:
+
+1. **Create (or reuse) a Firebase project** at [console.firebase.google.com](https://console.firebase.google.com).
+2. **Enable sign-in methods**: in the console go to **Build → Authentication → Sign-in method**, then enable:
+   - **Email/Password**
+   - **Google**
+3. **Register a web app**: **Project Settings → General → Your apps → Add app → Web (`</>`)**. Firebase will show you a config object with `apiKey`, `authDomain`, etc.
+4. **Fill in `.env`**: copy `.env.example` to `.env` and paste those values into the `VITE_FIREBASE_*` variables.
+5. **Add your deployed domain**: still in **Authentication → Settings → Authorized domains**, add your GitHub Pages / Netlify domain (localhost is already allowed by default) — otherwise Google sign-in will fail on the live site.
+6. **If deploying via the included GitHub Actions workflow**: add the same `VITE_FIREBASE_*` values (plus `VITE_AI_API_URL`) as **Repo → Settings → Secrets and variables → Actions → New repository secret**. The workflow already reads them from `secrets.*` during the build step.
+
+Once configured, `src/firebase.js` initializes the app and `src/context/AuthContext.jsx` exposes `currentUser`, `login`, `signup`, `loginWithGoogle`, `resetPassword`, and `logout` to the rest of the app via `useAuth()`.
