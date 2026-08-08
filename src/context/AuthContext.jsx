@@ -7,8 +7,15 @@ import {
   signOut,
   sendPasswordResetEmail,
   updateProfile,
+  reauthenticateWithPopup,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+  deleteUser,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  doc, getDoc, setDoc, deleteDoc, serverTimestamp,
+  collection, query, where, getDocs,
+} from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase';
 
 // Makes sure every signed-in user has a matching public member profile
@@ -35,6 +42,9 @@ async function ensureMemberProfile(user) {
     badges: ['Community Member'],
     verified: false,
     forHire: false,
+    // New profiles are hidden from the public directory until an
+    // admin approves them — see HrMemberDirectory / AdminPanel.
+    status: 'pending',
     reputationScore: 750,
     views: 0,
     createdAt: serverTimestamp(),
@@ -58,8 +68,22 @@ function friendlyAuthError(error) {
     'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
     'auth/popup-closed-by-user': 'Google sign-in was closed before finishing.',
     'auth/network-request-failed': 'Network error — check your connection and try again.',
+    'auth/requires-recent-login': 'For your security, please re-authenticate and try again.',
   };
   return map[code] || 'Something went wrong. Please try again.';
+}
+
+// Deletes everything owned by a member doc — their profile, plus any
+// feed posts and job listings they created — so nothing is left
+// orphaned under a uid that no longer has an account.
+async function deleteOwnedData(uid) {
+  const postsSnap = await getDocs(query(collection(db, 'posts'), where('authorId', '==', uid)));
+  const jobsSnap = await getDocs(query(collection(db, 'jobs'), where('postedBy', '==', uid)));
+  await Promise.all([
+    ...postsSnap.docs.map((d) => deleteDoc(d.ref)),
+    ...jobsSnap.docs.map((d) => deleteDoc(d.ref)),
+  ]);
+  await deleteDoc(doc(db, 'members', uid));
 }
 
 export function AuthProvider({ children }) {
@@ -120,6 +144,41 @@ export function AuthProvider({ children }) {
     await signOut(auth);
   }
 
+  // Permanently deletes the signed-in user's account: their profile
+  // doc, their posts/job listings, and their Firebase Auth account.
+  // Firebase requires a *recent* login before it will allow account
+  // deletion, so we re-authenticate first — via a fresh Google popup
+  // for Google users, or the user's password for email/password users.
+  async function deleteAccount({ password } = {}) {
+    const user = auth.currentUser;
+    if (!user) return { error: 'You need to be signed in to do that.' };
+
+    const providerId = user.providerData?.[0]?.providerId;
+
+    try {
+      if (providerId === 'google.com') {
+        await reauthenticateWithPopup(user, googleProvider);
+      } else {
+        if (!password) return { error: 'Enter your password to confirm.' };
+        const credential = EmailAuthProvider.credential(user.email, password);
+        await reauthenticateWithCredential(user, credential);
+      }
+    } catch (error) {
+      if (error?.code === 'auth/popup-closed-by-user') {
+        return { error: 'Re-authentication was cancelled — your account was not deleted.' };
+      }
+      return { error: friendlyAuthError(error) };
+    }
+
+    try {
+      await deleteOwnedData(user.uid);
+      await deleteUser(user);
+      return { success: true };
+    } catch (error) {
+      return { error: friendlyAuthError(error) };
+    }
+  }
+
   const value = {
     currentUser,
     authLoading,
@@ -128,6 +187,7 @@ export function AuthProvider({ children }) {
     loginWithGoogle,
     resetPassword,
     logout,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

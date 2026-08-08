@@ -1,0 +1,87 @@
+rules_version = '2';
+
+// Deploy with: firebase deploy --only firestore:rules
+// (or paste into Firebase Console -> Firestore Database -> Rules)
+//
+// There was no firestore.rules file in this repo before — Firestore's
+// default rules for a fresh project are locked down (deny all), so if
+// you haven't deployed *any* rules yet, reads/writes are currently
+// failing. Deploy this file to fix that.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Admin allow-list (Member Directory approval gate) ----
+    // Simplest option: hardcode the Firebase Auth UID(s) of trusted
+    // admins here. The password screen in the app's Admin Panel is
+    // just a friendly UI gate — THIS is what actually stops a random
+    // signed-in user from approving/rejecting profiles via the
+    // browser console.
+    //
+    // Find your UID: Firebase Console -> Authentication -> Users.
+    //
+    // Upgrade path (more setup, more correct long-term): replace this
+    // with Firebase custom claims set via the Admin SDK, and check
+    // `request.auth.token.admin == true` instead of an inline list —
+    // then admin status doesn't live inside a rules file you have to
+    // redeploy every time it changes.
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.uid in [
+          'Is7sYDqNU2dF3UBk3LHzpjVkgnt1'
+        ];
+    }
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // ---- members/{uid} : public HR profile ----
+    match /members/{uid} {
+      allow read: if true;
+
+      // A profile can only be created by its own owner, and must
+      // start out "pending" — nobody can self-approve on signup.
+      allow create: if isOwner(uid) &&
+        request.resource.data.status == 'pending';
+
+      // Owners can edit their own profile (bio, skills, experience,
+      // etc.) but can never touch `status` themselves. Admins are the
+      // mirror image: they may ONLY change `status` here, never
+      // silently rewrite someone's bio/skills/etc.
+      allow update: if
+        (isOwner(uid) &&
+          request.resource.data.status == resource.data.status) ||
+        (isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+
+      // A user can always delete their own profile (account
+      // deletion). Admins may also remove a profile if needed.
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+
+    // ---- posts/{postId} : community feed ----
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null &&
+        request.resource.data.authorId == request.auth.uid;
+      // Covers both "like" increments from any signed-in member and
+      // the author editing their own post.
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null &&
+        (resource.data.authorId == request.auth.uid || isAdmin());
+    }
+
+    // ---- jobs/{jobId} : jobs portal ----
+    match /jobs/{jobId} {
+      allow read: if true;
+      allow create: if request.auth != null &&
+        request.resource.data.postedBy == request.auth.uid;
+      // Covers both applying (arrayUnion/arrayRemove on `applicants`)
+      // and the poster editing their own listing.
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null &&
+        (resource.data.postedBy == request.auth.uid || isAdmin());
+    }
+  }
+}

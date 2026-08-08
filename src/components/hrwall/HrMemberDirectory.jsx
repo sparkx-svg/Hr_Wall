@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { BadgeCheck, Star, Eye, Pencil } from 'lucide-react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { BadgeCheck, Star, Eye, Pencil, Clock3 } from 'lucide-react';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import Reveal from './Reveal';
@@ -8,19 +8,36 @@ import Reveal from './Reveal';
 export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
   const { currentUser } = useAuth();
   const [members, setMembers] = useState([]);
+  const [ownProfile, setOwnProfile] = useState(null);
   const [selectedCity, setSelectedCategory] = useState('All');
   const [onlyVerified, setOnlyVerified] = useState(false);
   const [onlyForHire, setOnlyForHire] = useState(false);
 
-  // Live subscription to the shared "members" collection — every
-  // member's card (and any edits they make to it) shows up for
-  // everyone in real time.
+  // Live subscription to the shared "members" collection — only
+  // admin-approved profiles are ever displayed publicly. A brand new
+  // signup sits in "pending" until an admin approves it from the
+  // admin panel.
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'members'), (snapshot) => {
+    const approvedQuery = query(collection(db, 'members'), where('status', '==', 'approved'));
+    const unsubscribe = onSnapshot(approvedQuery, (snapshot) => {
       setMembers(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
     });
     return unsubscribe;
   }, []);
+
+  // Separately track the signed-in user's own profile (regardless of
+  // approval status) so we can show them a heads-up banner even
+  // though their card is filtered out of the public query above.
+  useEffect(() => {
+    if (!currentUser) {
+      setOwnProfile(null);
+      return;
+    }
+    const unsubscribe = onSnapshot(doc(db, 'members', currentUser.uid), (snap) => {
+      setOwnProfile(snap.exists() ? { id: snap.id, ...snap.data() } : null);
+    });
+    return unsubscribe;
+  }, [currentUser]);
 
   const cities = ['All', 'Chennai', 'Bangalore', 'Mumbai', 'Hyderabad', 'Delhi NCR', 'Pune'];
 
@@ -68,7 +85,7 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
           </label>
           {currentUser && (
             <button
-              onClick={() => onSelectMember({ id: currentUser.uid, ...(members.find(m => m.id === currentUser.uid) || {}), name: currentUser.displayName || 'HR Wall Member' })}
+              onClick={() => onSelectMember({ id: currentUser.uid, ...(ownProfile || {}), name: currentUser.displayName || 'HR Wall Member' })}
               className="inline-flex items-center gap-1.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-md text-xs"
             >
               <Pencil className="w-3.5 h-3.5" strokeWidth={1.75} /> Edit My Profile
@@ -76,6 +93,24 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
           )}
         </div>
       </div>
+
+      {/* Approval status banner — only ever shown to the profile owner */}
+      {ownProfile && ownProfile.status !== 'approved' && (
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-semibold px-4 py-3.5 rounded-lg">
+          <span className="inline-flex items-center gap-2">
+            <Clock3 className="w-4 h-4 shrink-0" strokeWidth={1.75} />
+            {ownProfile.status === 'rejected'
+              ? "Your profile wasn't approved for the public directory. You can still update it — an admin can move it back to review."
+              : "Your profile is pending admin approval — it isn't visible to others yet."}
+          </span>
+          <button
+            onClick={() => onSelectMember({ id: currentUser.uid, ...ownProfile })}
+            className="shrink-0 underline hover:no-underline text-left"
+          >
+            Edit my profile
+          </button>
+        </div>
+      )}
 
       {/* City Chips */}
       <div className="flex flex-wrap items-center gap-2 mb-8 border-b border-slate-200 dark:border-slate-800 pb-4">

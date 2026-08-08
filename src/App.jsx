@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HrWallNavbar from './components/hrwall/HrWallNavbar';
 import HrWallHero from './components/hrwall/HrWallHero';
 import HrMemberDirectory from './components/hrwall/HrMemberDirectory';
@@ -14,10 +14,12 @@ import HrMentorMarketplace from './components/hrwall/HrMentorMarketplace';
 import HrWallOfFame from './components/hrwall/HrWallOfFame';
 import HrPricingTiers from './components/hrwall/HrPricingTiers';
 import MemberProfileModal from './components/hrwall/MemberProfileModal';
+import AdminPanel from './components/hrwall/AdminPanel';
 import LogoMark from './components/hrwall/LogoMark';
 import Reveal from './components/hrwall/Reveal';
 import StatCounter from './components/hrwall/StatCounter';
 import AuthModal from './components/hrwall/AuthModal';
+import Toast from './components/Toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { hrWallStats } from './data/hrWallData';
 
@@ -37,11 +39,25 @@ function AppShell() {
   const [isDark, setIsDark] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
+  const [toastMessage, setToastMessage] = useState('');
 
   function openAuth(mode) {
     setAuthMode(mode);
     setAuthOpen(true);
   }
+
+  // The admin panel is intentionally not in the visible nav — it's
+  // reached via a hidden #admin hash so it doesn't show up as a menu
+  // item for regular members. Real write access is still enforced
+  // server-side by firestore.rules, not by this hash check.
+  useEffect(() => {
+    function syncFromHash() {
+      if (window.location.hash === '#admin') setActiveTab('admin');
+    }
+    syncFromHash();
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
+  }, []);
 
   return (
     <div className={isDark ? 'dark' : ''}>
@@ -116,6 +132,10 @@ function AppShell() {
 
           {activeTab === 'pricing' && (
             <HrPricingTiers />
+          )}
+
+          {activeTab === 'admin' && (
+            <AdminPanel />
           )}
         </main>
 
@@ -206,6 +226,11 @@ function AppShell() {
         <MemberProfileModal
           member={selectedMember}
           onClose={() => setSelectedMember(null)}
+          onAccountDeleted={() => {
+            setSelectedMember(null);
+            setActiveTab('directory');
+            setToastMessage("Your account has been deleted. Sorry to see you go.");
+          }}
         />
 
         {/* Sign In / Sign Up Modal */}
@@ -214,6 +239,8 @@ function AppShell() {
           initialMode={authMode}
           onClose={() => setAuthOpen(false)}
         />
+
+        <Toast message={toastMessage} onClose={() => setToastMessage('')} />
 
       </div>
     </div>

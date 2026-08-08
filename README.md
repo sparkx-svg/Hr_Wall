@@ -63,4 +63,17 @@ The "Sign In" / "Join Free Community" buttons in the navbar open a modal backed 
 5. **Add your deployed domain**: still in **Authentication → Settings → Authorized domains**, add your GitHub Pages / Netlify domain (localhost is already allowed by default) — otherwise Google sign-in will fail on the live site.
 6. **If deploying via the included GitHub Actions workflow**: add the same `VITE_FIREBASE_*` values (plus `VITE_AI_API_URL`) as **Repo → Settings → Secrets and variables → Actions → New repository secret**. The workflow already reads them from `secrets.*` during the build step.
 
-Once configured, `src/firebase.js` initializes the app and `src/context/AuthContext.jsx` exposes `currentUser`, `login`, `signup`, `loginWithGoogle`, `resetPassword`, and `logout` to the rest of the app via `useAuth()`.
+Once configured, `src/firebase.js` initializes the app and `src/context/AuthContext.jsx` exposes `currentUser`, `login`, `signup`, `loginWithGoogle`, `resetPassword`, `logout`, and `deleteAccount` to the rest of the app via `useAuth()`.
+
+## Member Directory admin approval
+
+New signups start with `status: "pending"` on their `members/{uid}` doc and are hidden from the public Member Directory until approved.
+
+1. **Deploy `firestore.rules`** (there wasn't one in this repo before — Firestore's default is deny-all, so reads/writes will fail until you deploy some rules): `firebase deploy --only firestore:rules`, or paste the file's contents into **Firebase Console → Firestore Database → Rules**.
+2. **Add your admin UID**: in `firestore.rules`, replace `REPLACE_WITH_YOUR_FIREBASE_AUTH_UID` with your own Firebase Auth UID (found in **Authentication → Users**). Only UIDs in that list can change a profile's `status`.
+3. **Set `VITE_ADMIN_PASSWORD`** in `.env` — this is a client-side UI gate for the admin panel, not real access control; the Firestore rule above is what actually protects the data.
+4. **Open the panel** at `#admin` (e.g. `http://localhost:5173/#admin`) while signed in with your admin account, enter the password, and approve/reject/revoke profiles.
+
+## Deleting your account
+
+Signed-in members can delete their own account from their profile modal ("Delete My Account"). This deletes their `members/{uid}` doc, any posts/job listings they created, and their Firebase Auth account. Firebase requires a recent sign-in to allow account deletion, so the flow re-authenticates first — via a fresh Google popup for Google users, or a password prompt for email/password users.
