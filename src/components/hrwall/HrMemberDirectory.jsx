@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { BadgeCheck, Star, Eye } from 'lucide-react';
 import { hrMembers } from '../../data/hrWallData';
+import Reveal from './Reveal';
 
 export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
   const [selectedCity, setSelectedCategory] = useState('All');
@@ -74,16 +75,16 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
 
       {/* Directory Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredMembers.map(member => (
+        {filteredMembers.map((member, index) => (
+          <Reveal key={member.id} delay={Math.min(index % 6, 5) * 60} duration={550} distance={12}>
           <div
-            key={member.id}
-            className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md p-6 flex flex-col justify-between hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-150"
+            className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md p-6 flex flex-col justify-between hover:shadow-xl hover:shadow-slate-900/5 hover:-translate-y-1 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 ease-out"
           >
             <div>
               {/* Member Top Bar */}
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center text-white font-bold text-lg shadow-sm">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md flex items-center justify-center text-white font-bold text-lg shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:rotate-1">
                     {member.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
@@ -134,12 +135,13 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
               </span>
               <button
                 onClick={() => onSelectMember(member)}
-                className="bg-slate-900 hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-md text-xs transition-all"
+                className="bg-slate-900 hover:bg-slate-800 active:scale-95 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold px-3.5 py-1.5 rounded-md text-xs transition-all"
               >
                 View Profile
               </button>
             </div>
           </div>
+          </Reveal>
         ))}
       </div>
 

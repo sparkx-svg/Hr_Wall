@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-
-function SealMark() {
-  return (
-    <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-      <circle cx="19" cy="19" r="18" className="fill-ink-900 dark:fill-paper-100" />
-      <circle cx="19" cy="19" r="18" strokeDasharray="1.5 3" className="stroke-brass-400" strokeWidth="1" fill="none" />
-      <text x="19" y="24" textAnchor="middle" fontFamily="Fraunces, serif" fontSize="16" fontWeight="600" className="fill-paper-100 dark:fill-ink-900">
-        W
-      </text>
-    </svg>
-  );
-}
+import LogoMark from './LogoMark';
 
 function SunIcon(props) {
   return (
@@ -52,14 +41,16 @@ export default function HrWallNavbar({ activeTab, setActiveTab, isDark, onToggle
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
         {/* Logo */}
-        <a href="#" onClick={() => setActiveTab('directory')} className="flex items-center gap-3 no-underline">
-          <SealMark />
+        <a href="#" onClick={() => setActiveTab('directory')} className="group flex items-center gap-3 no-underline">
+          <div className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:rotate-[-2deg]">
+            <LogoMark />
+          </div>
           <div>
             <span className="text-lg font-semibold tracking-tight text-ink-900 dark:text-paper-100 block leading-none font-display">
               The HR Wall
             </span>
             <span className="text-[10px] text-brass-600 dark:text-brass-400 font-semibold uppercase tracking-[0.2em] block mt-1">
-              Connect · Learn · Hire · Grow
+              PF Dates · Pay Bands · Real Talk
             </span>
           </div>
         </a>
@@ -70,7 +61,7 @@ export default function HrWallNavbar({ activeTab, setActiveTab, isDark, onToggle
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`relative px-2.5 py-2 transition-colors ${
+              className={`relative px-2.5 py-2 transition-colors duration-200 ${
                 activeTab === item.id
                   ? 'text-ink-900 dark:text-paper-50'
                   : 'text-ink-400 dark:text-ink-200 hover:text-ink-800 dark:hover:text-paper-100'
@@ -78,8 +69,8 @@ export default function HrWallNavbar({ activeTab, setActiveTab, isDark, onToggle
             >
               {item.label}
               <span
-                className={`absolute left-2.5 right-2.5 -bottom-0.5 h-[2px] bg-brass-500 transition-opacity ${
-                  activeTab === item.id ? 'opacity-100' : 'opacity-0'
+                className={`absolute left-2.5 right-2.5 -bottom-0.5 h-[2px] bg-brass-500 origin-left transition-transform duration-300 ease-out ${
+                  activeTab === item.id ? 'scale-x-100' : 'scale-x-0'
                 }`}
               />
             </button>
@@ -90,23 +81,25 @@ export default function HrWallNavbar({ activeTab, setActiveTab, isDark, onToggle
         <div className="hidden md:flex items-center gap-3">
           <button
             onClick={onToggleDark}
-            className="p-2.5 border border-ink-200 dark:border-ink-600 rounded-full hover:bg-ink-50 dark:hover:bg-ink-700 transition-all text-ink-600 dark:text-paper-200"
+            className="p-2.5 border border-ink-200 dark:border-ink-600 rounded-full hover:bg-ink-50 dark:hover:bg-ink-700 active:scale-90 transition-all text-ink-600 dark:text-paper-200"
             title="Toggle theme"
           >
             {isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
           </button>
-          <button onClick={() => setActiveTab('pricing')} className="bg-ink-900 hover:bg-ink-700 dark:bg-brass-500 dark:hover:bg-brass-400 text-paper-50 dark:text-ink-900 text-xs font-semibold px-4 py-2.5 rounded-full transition-all">
+          <button onClick={() => setActiveTab('pricing')} className="bg-ink-900 hover:bg-ink-700 active:scale-95 dark:bg-brass-500 dark:hover:bg-brass-400 text-paper-50 dark:text-ink-900 text-xs font-semibold px-4 py-2.5 rounded-full transition-all">
             Join Free Community
           </button>
         </div>
 
         {/* Mobile Toggle */}
         <div className="flex items-center gap-2 2xl:hidden">
-          <button onClick={onToggleDark} className="p-2 border border-ink-200 dark:border-ink-600 rounded-full text-ink-600 dark:text-paper-200">
+          <button onClick={onToggleDark} className="p-2 border border-ink-200 dark:border-ink-600 rounded-full text-ink-600 dark:text-paper-200 active:scale-90 transition-transform">
             {isDark ? <SunIcon className="w-4 h-4" /> : <MoonIcon className="w-4 h-4" />}
           </button>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 border border-ink-200 dark:border-ink-600 rounded-full text-ink-800 dark:text-paper-100 font-semibold w-9 h-9 flex items-center justify-center">
-            <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M0 1h16M0 6h16M0 11h16" /></svg>
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 border border-ink-200 dark:border-ink-600 rounded-full text-ink-800 dark:text-paper-100 font-semibold w-9 h-9 flex items-center justify-center active:scale-90 transition-transform">
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="currentColor" strokeWidth="1.6" className="transition-transform duration-300" style={{ transform: mobileMenuOpen ? 'rotate(90deg)' : 'none' }}>
+              <path d="M0 1h16M0 6h16M0 11h16" />
+            </svg>
           </button>
         </div>
 
@@ -114,17 +107,18 @@ export default function HrWallNavbar({ activeTab, setActiveTab, isDark, onToggle
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="2xl:hidden bg-paper-50 dark:bg-ink-900 border-b border-ink-100 dark:border-ink-600 px-6 py-4 flex flex-col gap-1 font-medium text-xs max-h-[80vh] overflow-y-auto">
-          {navItems.map(item => (
+        <div className="2xl:hidden bg-paper-50 dark:bg-ink-900 border-b border-ink-100 dark:border-ink-600 px-6 py-4 flex flex-col gap-1 font-medium text-xs max-h-[80vh] overflow-y-auto animate-fade-slide-down">
+          {navItems.map((item, index) => (
             <button
               key={item.id}
               onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
-              className="text-left py-2 text-ink-600 dark:text-paper-200 hover:text-brass-600 dark:hover:text-brass-400"
+              className="text-left py-2 text-ink-600 dark:text-paper-200 hover:text-brass-600 dark:hover:text-brass-400 animate-fade-slide-down"
+              style={{ animationDelay: `${Math.min(index, 8) * 25}ms`, animationFillMode: 'both' }}
             >
               {item.label}
             </button>
           ))}
-          <button onClick={() => { setActiveTab('pricing'); setMobileMenuOpen(false); }} className="bg-ink-900 dark:bg-brass-500 text-paper-50 dark:text-ink-900 text-center py-2.5 rounded-full mt-2 font-semibold">
+          <button onClick={() => { setActiveTab('pricing'); setMobileMenuOpen(false); }} className="bg-ink-900 dark:bg-brass-500 text-paper-50 dark:text-ink-900 text-center py-2.5 rounded-full mt-2 font-semibold active:scale-95 transition-transform">
             Join Free Community
           </button>
         </div>
