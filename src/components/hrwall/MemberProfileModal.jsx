@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Star, CreditCard, BadgeCheck, UserPlus, MessageCircle, X,
   Pencil, Plus, Trash2, Check, Briefcase,
@@ -23,6 +23,17 @@ export default function MemberProfileModal({ member, onClose }) {
   // Edit form state, seeded from the member when edit mode opens.
   const [form, setForm] = useState(null);
   const [skillInput, setSkillInput] = useState('');
+
+  // This modal is mounted once for the whole app lifetime, so its
+  // internal state has to be re-synced whenever the parent hands it
+  // a different `member` (or clears it back to null on close) — a
+  // plain useState(member) only reads that value on first mount.
+  useEffect(() => {
+    setDisplayMember(member);
+    setIsEditing(false);
+    setForm(null);
+    setSkillInput('');
+  }, [member]);
 
   if (!displayMember) return null;
 
