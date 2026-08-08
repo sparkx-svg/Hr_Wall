@@ -96,7 +96,7 @@ export default function HrWallFeed() {
                   <span className="text-xs text-slate-400 block">{post.role} • {post.city}</span>
                 </div>
               </div>
-              <span className="text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 px-2.5 py-1 rounded-full">
+              <span className="text-[10px] font-bold text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded">
                 {post.badge}
               </span>
             </div>

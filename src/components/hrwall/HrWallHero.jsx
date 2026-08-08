@@ -21,7 +21,7 @@ export default function HrWallHero({ searchQuery, setSearchQuery, onSelectCatego
 
         {/* Left: message */}
         <div>
-          <span className="inline-flex items-center gap-2 text-brass-400 text-[11px] font-semibold uppercase tracking-[0.2em] mb-6 border border-brass-500/30 rounded-full px-3.5 py-1.5">
+          <span className="inline-flex items-center gap-2 text-brass-400 text-[11px] font-semibold uppercase tracking-[0.2em] mb-6 border-b border-brass-500/40 pb-1">
             India's HR professional network
           </span>
 

@@ -10,7 +10,7 @@ export default function Navbar({ isDark, onToggleDark }) {
           <div className="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
             HR
           </div>
-          <span>HRHub <span className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 rounded-full font-bold ml-1">POLISHED PRO</span></span>
+          <span>HRHub <span className="text-[10px] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 px-1.5 py-0.5 rounded font-bold ml-1 tracking-wide">POLISHED PRO</span></span>
         </a>
 
         {/* Desktop Nav */}

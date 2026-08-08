@@ -48,7 +48,11 @@ export default function MemberProfileModal({ member, onClose }) {
 
             <h2 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2">
               {member.name}
-              {member.verified && <BadgeCheck className="w-4 h-4 text-blue-500" strokeWidth={1.75} aria-label="Verified member" />}
+              {member.verified && (
+                <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full">
+                  <BadgeCheck className="w-3 h-3" strokeWidth={2.5} /> Verified
+                </span>
+              )}
             </h2>
             <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">{member.designation}</p>
             <p className="text-xs font-semibold text-blue-600 dark:text-blue-400">@ {member.company} • {member.city}, India</p>
@@ -63,8 +67,8 @@ export default function MemberProfileModal({ member, onClose }) {
               <h4 className="font-bold uppercase tracking-wider text-[10px] text-slate-400 mb-2">Verified Badges & Recognitions</h4>
               <div className="flex flex-wrap gap-2">
                 {member.badges?.map(b => (
-                  <span key={b} className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-xs font-extrabold px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 inline-flex items-center gap-1">
-                    <BadgeCheck className="w-3 h-3" strokeWidth={2} /> {b}
+                  <span key={b} className="text-slate-600 dark:text-slate-300 text-xs font-bold px-2.5 py-1 rounded border border-slate-200 dark:border-slate-700 inline-flex items-center gap-1">
+                    {b}
                   </span>
                 ))}
               </div>

@@ -24,7 +24,7 @@ export default function HrReputationScoreModal({ member, onClose }) {
 
         {/* Score Header */}
         <div className="text-center mb-6">
-          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full">
+          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 border-b border-blue-200 dark:border-blue-800 pb-1">
             Signature Feature: HR Reputation Score
           </span>
           <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-3">{member.name}</h3>
@@ -35,7 +35,7 @@ export default function HrReputationScoreModal({ member, onClose }) {
         <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 p-6 rounded-2xl text-white text-center shadow-xl mb-6">
           <span className="text-xs uppercase font-bold text-blue-100 tracking-wider block">Total HR Reputation Score</span>
           <span className="text-5xl font-black tracking-tight my-1 block">{score} <span className="text-xl text-blue-200 font-normal">/ 1000</span></span>
-          <span className="inline-flex items-center gap-1 bg-white/20 text-white text-[11px] font-extrabold px-3 py-0.5 rounded-full">
+          <span className="inline-flex items-center gap-1 border border-white/30 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded">
             <Star className="w-3 h-3" strokeWidth={1.75} fill="currentColor" /> {score >= 900 ? 'Tier 1 Top HR Leader' : 'Verified HR Specialist'}
           </span>
         </div>

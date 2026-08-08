@@ -61,10 +61,10 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
           <button
             key={city}
             onClick={() => setSelectedCategory(city)}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all border ${
               selectedCity === city
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-transparent border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600'
             }`}
           >
             {city}
@@ -89,14 +89,18 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-1.5">
                       {member.name}
-                      {member.verified && <BadgeCheck className="w-3.5 h-3.5 text-blue-500" strokeWidth={1.75} aria-label="Verified member" />}
+                      {member.verified && (
+                        <span className="inline-flex items-center gap-0.5 bg-blue-600 text-white text-[9px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded-full">
+                          <BadgeCheck className="w-2.5 h-2.5" strokeWidth={2.5} /> Verified
+                        </span>
+                      )}
                     </h3>
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block">{member.city}, India</span>
                   </div>
                 </div>
 
                 {/* Reputation Badge */}
-                <span className="bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-[10px] font-black px-2.5 py-1 rounded-full inline-flex items-center gap-1">
+                <span className="text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 text-[10px] font-black px-2 py-0.5 rounded inline-flex items-center gap-1">
                   <Star className="w-3 h-3" strokeWidth={1.75} fill="currentColor" /> {member.reputationScore || 850}/1000
                 </span>
               </div>
@@ -116,8 +120,8 @@ export default function HrMemberDirectory({ searchQuery, onSelectMember }) {
               {/* Badges */}
               <div className="flex flex-wrap gap-1 mb-4">
                 {member.badges?.map(b => (
-                  <span key={b} className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                    <BadgeCheck className="w-2.5 h-2.5" strokeWidth={2} /> {b}
+                  <span key={b} className="text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[9px] font-bold px-1.5 py-0.5 rounded inline-flex items-center gap-1">
+                    {b}
                   </span>
                 ))}
               </div>

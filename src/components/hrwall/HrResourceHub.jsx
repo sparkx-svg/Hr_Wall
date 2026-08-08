@@ -30,10 +30,10 @@ export default function HrResourceHub({ onOpenModal }) {
             <button
               key={c}
               onClick={() => setActiveCategory(c)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+              className={`px-3.5 py-1.5 rounded-md text-xs font-bold transition-all border ${
                 activeCategory === c
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-transparent border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
               }`}
             >
               {c}

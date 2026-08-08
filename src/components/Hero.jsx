@@ -4,7 +4,7 @@ export default function Hero({ searchQuery, setSearchQuery, totalTemplates }) {
   return (
     <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-20 px-6 text-center">
       <div className="max-w-4xl mx-auto">
-        <span className="inline-block bg-white/10 text-sky-400 text-xs font-semibold px-4 py-1.5 rounded-full border border-white/15 mb-6">
+        <span className="inline-block text-sky-400 text-xs font-semibold uppercase tracking-widest border-b border-white/20 pb-1 mb-6">
           ⚡ 100% Free & Open-Source HR Framework
         </span>
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-6 leading-tight">

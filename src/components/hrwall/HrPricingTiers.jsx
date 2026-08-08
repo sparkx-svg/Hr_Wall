@@ -30,13 +30,13 @@ export default function HrPricingTiers() {
               }`}
             >
               {tier.popular && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded shadow-md">
                   Most Popular for HR Professionals
                 </span>
               )}
 
               <div>
-                <span className={`inline-block text-xs font-extrabold px-3 py-1 rounded-full mb-4 ${tier.badgeColor}`}>
+                <span className={`inline-block text-xs font-extrabold px-2.5 py-0.5 rounded border mb-4 ${tier.badgeColor}`}>
                   {tier.name} Tier
                 </span>
                 <div className="flex items-baseline gap-1 mb-2">

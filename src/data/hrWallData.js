@@ -197,7 +197,7 @@ export const hrMembershipTiers = [
     ],
     cta: "Join Free Community",
     popular: false,
-    badgeColor: "bg-slate-100 text-slate-800"
+    badgeColor: "bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
   },
   {
     name: "Professional",
@@ -214,6 +214,6 @@ export const hrMembershipTiers = [
     ],
     cta: "Upgrade to Pro",
     popular: true,
-    badgeColor: "bg-blue-600 text-white"
+    badgeColor: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800"
   }
 ];

@@ -29,7 +29,7 @@ export default function HrComplianceCalendar() {
                 <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">{item.title}</h3>
                 <p className="text-xs font-extrabold text-amber-500 inline-flex items-center gap-1"><Calendar className="w-3.5 h-3.5" strokeWidth={1.75} /> Due Date: {item.date}</p>
               </div>
-              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-black px-2 py-0.5 rounded uppercase">
                 {item.status}
               </span>
             </div>
