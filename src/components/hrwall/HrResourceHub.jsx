@@ -12,7 +12,7 @@ export default function HrResourceHub({ onOpenModal }) {
     : hrResourcesHub.filter(r => r.category === activeCategory);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-10">
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10">
         <div>

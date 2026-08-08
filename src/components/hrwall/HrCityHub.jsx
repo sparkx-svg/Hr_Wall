@@ -22,7 +22,7 @@ export default function HrCityHub() {
   const [selectedCity, setSelectedCity] = useState(indianCities[0]);
 
   return (
-    <section className="bg-slate-100 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-16 px-6 transition-colors">
+    <section className="bg-slate-100 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-12 px-6 transition-colors">
       <div className="max-w-7xl mx-auto">
         
         <div className="text-center mb-12">

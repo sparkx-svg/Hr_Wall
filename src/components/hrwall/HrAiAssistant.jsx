@@ -79,7 +79,7 @@ export default function HrAiAssistant() {
   };
 
   return (
-    <section className="max-w-5xl mx-auto px-6 py-16">
+    <section className="max-w-5xl mx-auto px-6 py-14">
 
       <div className="text-center mb-10">
         <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-1">

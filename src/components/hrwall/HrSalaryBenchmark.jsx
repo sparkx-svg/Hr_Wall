@@ -3,7 +3,7 @@ import { hrSalaryInsights } from '../../data/hrWallData';
 
 export default function HrSalaryBenchmark() {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-10">
       
       <div className="text-center mb-12">
         <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-1">

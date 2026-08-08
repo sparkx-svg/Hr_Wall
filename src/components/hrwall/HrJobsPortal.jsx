@@ -4,7 +4,7 @@ import { hrJobs } from '../../data/hrWallData';
 
 export default function HrJobsPortal() {
   return (
-    <section className="bg-slate-100 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-16 px-6 transition-colors">
+    <section className="bg-slate-100 dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 py-10 px-6 transition-colors">
       <div className="max-w-7xl mx-auto">
         
         <div className="text-center mb-12">

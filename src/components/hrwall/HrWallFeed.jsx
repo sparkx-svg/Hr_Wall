@@ -33,7 +33,7 @@ export default function HrWallFeed() {
   };
 
   return (
-    <section className="max-w-4xl mx-auto px-6 py-16">
+    <section className="max-w-4xl mx-auto px-6 py-10">
       
       <div className="text-center mb-10">
         <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest block mb-1">
