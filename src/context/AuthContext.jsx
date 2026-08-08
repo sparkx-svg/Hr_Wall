@@ -8,7 +8,39 @@ import {
   sendPasswordResetEmail,
   updateProfile,
 } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, googleProvider, db } from '../firebase';
+
+// Makes sure every signed-in user has a matching public member profile
+// doc (members/{uid}). Runs on every auth state change; it's a single
+// read plus a write only the first time, so it's cheap after that.
+async function ensureMemberProfile(user) {
+  if (!user) return;
+  const ref = doc(db, 'members', user.uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) return;
+
+  const name = user.displayName || 'HR Wall Member';
+  await setDoc(ref, {
+    uid: user.uid,
+    name,
+    designation: '',
+    company: '',
+    city: '',
+    domain: '',
+    experienceYears: '',
+    bio: '',
+    skills: [],
+    experienceList: [],
+    badges: ['Community Member'],
+    verified: false,
+    forHire: false,
+    reputationScore: 750,
+    views: 0,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
 
 const AuthContext = createContext(null);
 
@@ -38,6 +70,7 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       setAuthLoading(false);
+      if (user) ensureMemberProfile(user);
     });
     return unsubscribe;
   }, []);
