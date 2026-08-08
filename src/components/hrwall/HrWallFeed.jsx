@@ -1,35 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lightbulb, Briefcase, HelpCircle, BadgeCheck, ThumbsUp, MessageCircle, Link2 } from 'lucide-react';
-import { hrFeedPosts } from '../../data/hrWallData';
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
+  doc,
+  updateDoc,
+  increment,
+} from 'firebase/firestore';
+import { db } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 
 export default function HrWallFeed() {
-  const [posts, setPosts] = useState(hrFeedPosts);
+  const { currentUser } = useAuth();
+  const [posts, setPosts] = useState([]);
   const [newPostText, setNewPostText] = useState('');
 
-  const handleCreatePost = (e) => {
+  // Subscribe to the shared "posts" collection in Firestore.
+  // onSnapshot keeps this live: any post anyone publishes shows up
+  // for every visitor in real time, without a page refresh.
+  useEffect(() => {
+    const postsQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(postsQuery, (snapshot) => {
+      setPosts(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newPostText.trim()) return;
 
-    const newPost = {
-      id: `post-${Date.now()}`,
-      author: "Saran Prasanth",
-      title: "Saran Prasanth",
-      role: "AI Content Creator @ PeopleOps Labs",
-      city: "Chennai",
-      time: "Just now",
-      badge: "Community Leader",
-      content: newPostText,
-      likes: 1,
-      comments: 0,
-      type: "Community Post"
-    };
+    if (!currentUser) {
+      alert('Please sign in to post.');
+      return;
+    }
 
-    setPosts([newPost, ...posts]);
+    await addDoc(collection(db, 'posts'), {
+      author: currentUser.displayName || 'HR Wall Member',
+      authorId: currentUser.uid,
+      role: 'HR Wall Member',
+      city: '',
+      badge: 'Community Member',
+      content: newPostText,
+      likes: 0,
+      comments: 0,
+      type: 'Community Post',
+      createdAt: serverTimestamp(),
+    });
+
     setNewPostText('');
   };
 
-  const handleLike = (id) => {
-    setPosts(posts.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
+  const handleLike = async (id) => {
+    await updateDoc(doc(db, 'posts', id), { likes: increment(1) });
   };
 
   return (
@@ -51,11 +78,15 @@ export default function HrWallFeed() {
       <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-6 shadow-sm mb-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-md flex items-center justify-center text-white font-bold text-sm">
-            SP
+            {(currentUser?.displayName || 'You')[0].toUpperCase()}
           </div>
           <div>
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Saran Prasanth</h4>
-            <span className="text-xs text-slate-400 font-medium">Posting as Verified HR Professional</span>
+            <h4 className="font-bold text-slate-900 dark:text-white text-sm">
+              {currentUser?.displayName || 'Sign in to post'}
+            </h4>
+            <span className="text-xs text-slate-400 font-medium">
+              {currentUser ? 'Posting as yourself' : 'You need to sign in to publish a post'}
+            </span>
           </div>
         </div>
         <form onSubmit={handleCreatePost}>
