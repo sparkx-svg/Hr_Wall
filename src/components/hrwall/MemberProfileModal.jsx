@@ -15,6 +15,7 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   // "Delete my account" confirmation flow
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -42,6 +43,7 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
     setShowDeleteConfirm(false);
     setDeletePassword('');
     setDeleteError('');
+    setSaveError('');
   }, [member]);
 
   if (!displayMember) return null;
@@ -49,6 +51,7 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
   const isOwner = currentUser && displayMember.id === currentUser.uid;
 
   const startEditing = () => {
+    setSaveError('');
     setForm({
       name: displayMember.name || '',
       designation: displayMember.designation || '',
@@ -68,6 +71,7 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
     setIsEditing(false);
     setForm(null);
     setSkillInput('');
+    setSaveError('');
   };
 
   const addSkill = () => {
@@ -99,7 +103,11 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
   };
 
   const saveProfile = async () => {
-    if (!form.name.trim()) return;
+    setSaveError('');
+    if (!form.name.trim()) {
+      setSaveError('Full Name can\u2019t be empty.');
+      return;
+    }
     setSaving(true);
     const cleanExperience = form.experienceList.filter(e => e.title.trim() || e.company.trim());
     // Note: `status` is deliberately left out of this payload. Only an
@@ -113,6 +121,13 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
       setDisplayMember({ ...displayMember, ...payload });
       setIsEditing(false);
       setForm(null);
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      setSaveError(
+        err?.code === 'permission-denied'
+          ? 'You don\u2019t have permission to save this change. Try refreshing and signing in again.'
+          : 'Couldn\u2019t save your profile. Check your connection and try again.'
+      );
     } finally {
       setSaving(false);
     }
@@ -358,6 +373,12 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
                   </div>
                 </div>
 
+                {saveError && (
+                  <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} /> {saveError}
+                  </p>
+                )}
+
                 <div className="flex gap-2 pt-2">
                   <button
                     onClick={saveProfile}
@@ -369,107 +390,4 @@ export default function MemberProfileModal({ member, onClose, onAccountDeleted }
                   <button
                     onClick={cancelEditing}
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold px-4 py-2 rounded-lg text-xs"
-                  >
-                    <X className="w-3.5 h-3.5" strokeWidth={2} /> Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Footer Actions */}
-          {!isEditing && !isOwner && (
-            <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3 shrink-0">
-              <button onClick={() => alert(`Connect request sent to ${member_.name}`)} className="border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold px-4 py-2 rounded-lg text-xs inline-flex items-center gap-1.5">
-                <UserPlus className="w-3.5 h-3.5" strokeWidth={1.75} /> Connect
-              </button>
-              <button onClick={() => alert(`Message sent to ${member_.name}`)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2 rounded-lg text-xs inline-flex items-center gap-1.5">
-                <MessageCircle className="w-3.5 h-3.5" strokeWidth={1.75} /> Send Message
-              </button>
-            </div>
-          )}
-
-        </div>
-      </div>
-
-      {showIdCard && (
-        <DigitalHrCardModal member={member_} onClose={() => setShowIdCard(false)} />
-      )}
-
-      {showScoreModal && (
-        <HrReputationScoreModal member={member_} onClose={() => setShowScoreModal(false)} />
-      )}
-
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full shadow-2xl overflow-hidden">
-            <div className="p-6">
-              <div className="w-11 h-11 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                <AlertTriangle className="w-5 h-5 text-red-600" strokeWidth={1.75} />
-              </div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white mb-1.5">Delete your account?</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                This is permanent. Your HR Wall profile will be deleted, and any
-                posts and job listings you've created will be deleted along with
-                it. This can't be undone.
-              </p>
-
-              {isGoogleUser ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5">
-                  You'll be asked to confirm via a Google sign-in popup before deletion.
-                </p>
-              ) : (
-                <div className="mb-4">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                    Confirm your password
-                  </label>
-                  <input
-                    type="password"
-                    className={inputCls}
-                    value={deletePassword}
-                    onChange={e => setDeletePassword(e.target.value)}
-                    placeholder="Current password"
-                    autoFocus
-                  />
-                </div>
-              )}
-
-              {deleteError && (
-                <p className="text-xs text-red-600 font-semibold mb-4">{deleteError}</p>
-              )}
-
-              <div className="flex gap-2">
-                <button
-                  onClick={handleDeleteAccount}
-                  disabled={deleting || (!isGoogleUser && !deletePassword)}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-lg text-xs"
-                >
-                  {deleting ? 'Deleting…' : 'Delete Permanently'}
-                </button>
-                <button
-                  onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); setDeleteError(''); }}
-                  disabled={deleting}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-lg text-xs"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <div>
-      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-const inputCls = "w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500";
+                    className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 tex
